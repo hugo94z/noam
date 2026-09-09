@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Noam Speeder — Platformer 3D Vitesse + Action (Deluxe)</title>
+<link rel="stylesheet" href="style.css">
+<!-- Three.js (version UMD pour marcher en double-clic sans serveur) -->
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+</head>
+<body>
+<div id="game"></div>
+<div id="vignette"></div>
+<div id="speedlines"></div>
+<div id="damageFlash"></div>
+
+<div id="hud">
+  <div class="panel"><div id="title">NOAM <span>SPEEDER</span><small>PLATFORMER • VITESSE • 3D • ACTION</small></div></div>
+  <div class="panel">
+    <div id="zoneLabel">🌿 Plaines<small>Zone 1 / 6</small></div>
+    <div id="progress"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="panel" id="hudRight"><div id="hearts">❤️❤️❤️</div><div id="killBox">👾 <span id="killCount">0</span> KO</div></div>
+</div>
+
+<div id="msg"></div>
+
+<div id="speedWrap" class="panel">
+  <div class="lbl">⚡ VITESSE (auto jusqu'à la limite !)</div>
+  <div id="speedBarBg"><div id="speedBar"></div></div>
+  <div id="speedTxt">0 km/h</div>
+  <div id="floatTxt">🎈 FLOTTER (F) : 1.0s</div>
+  <div id="floatBarBg"><div id="floatBar"></div></div>
+</div>
+
+<div id="timer" class="panel">⏱️ <span id="timeTxt">0:00.0</span><br><small>🎯 Écrase le GROS BOUTON ROSE !</small></div>
+
+<div id="controlsHelp" class="panel">
+  <b>Z / W ⬆️</b> : avancer &nbsp; <b>S ⬇️</b> : reculer<br>
+  <b>Q / A ⬅️</b> • <b>D ➡️</b> : gauche / droite<br>
+  <b>ESPACE</b> : saut / double-saut / <b>TRIPLE SAUT</b><br>
+  <b>F</b> : flotter 1 sec 🎈<br>
+  <b>C</b> accroupi + <b>ESPACE</b> = <b>BACKFLIP</b> 🌀<br>
+  <b>E / Clic</b> : frapper 👊 • <b>X / V</b> : Ground Pound 💥<br>
+  <b>Souris glisser</b> : caméra • <b>T</b> : recentrer • <b>R</b> : checkpoint
+</div>
+
+<div id="touch">
+  <div id="joy"><div id="stick"></div></div>
+  <div class="tbtns">
+    <button id="tJump">SAUT</button>
+    <button id="tHit">FRAPPE</button>
+    <button id="tPound">POUND</button>
+    <button id="tFloat">FLOTTE</button>
+    <button id="tCrouch">ACCROUP</button>
+  </div>
+</div>
+
+<div id="menu" class="overlay">
+  <div class="card">
+    <div class="badge">D'APRÈS LES DESSINS PAPIER DE NOAM ✏️ • ÉDITION DELUXE ✨</div>
+    <h1>NOAM <span>SPEEDER</span></h1>
+    <p><b>Platformer + Vitesse + 3D + Action.</b> Tu vas <b>de plus en plus vite</b> (avec limite !). Traverse les <b>6 zones</b> et écrase le <b>bouton rose</b> avec un Ground Pound !</p>
+    <div class="zones">
+      <span style="background:#8ee27a">🌿 Plaines</span>
+      <span style="background:#ffe28a">🏖️ Plages</span>
+      <span style="background:#7ad4ff">🌊 Aquatique</span>
+      <span style="background:#c9c9c9">⛰️ Montagnes</span>
+      <span style="background:#333;color:#ff7a2e">🌋 Lave</span>
+      <span style="background:#eef6ff">❄️ Neiges</span>
+    </div>
+    <div class="grid">
+      <div><b>🏃 Vitesse auto + réacteur</b>Ton sac speeder s'allume, la caméra s'élargit, écharpe au vent !</div>
+      <div><b>🦘 Triple saut</b>3 sauts en courant = super haut pour les montagnes.</div>
+      <div><b>🎈 Flotte 1 sec</b>Maintiens <kbd>F</kbd> en l'air, style Yoshi.</div>
+      <div><b>🌀 Backflip</b><kbd>C</kbd> + <kbd>Espace</kbd> = salto arrière.</div>
+      <div><b>👊 Frappe + Pound</b><kbd>E</kbd> / clic pour frapper, <kbd>X</kbd> / <kbd>V</kbd> pour écraser. Double saut inclus !</div>
+      <div><b>👾 Bloup • Goldonax • Corhog</b>Goomba gluant, lanceur de pierres, lancier violet. Saute-leur dessus !</div>
+    </div>
+    <p style="font-size:12px">🌋 Lave = aïe • 🌊 Eau = remonte vite • ❄️ Glace = ça glisse • 🚩 Chaque zone = checkpoint</p>
+    <button id="btnStart" class="bigbtn">▶ JOUER !</button>
+    <p style="font-size:11px;color:#777;margin-top:8px">Astuce : reste appuyé sur Z pour aller à fond, vise le faisceau rose au loin !</p>
+  </div>
+</div>
+
+<div id="win" class="overlay hidden">
+  <div class="card">
+    <div class="badge">🏁 LIGNE D'ARRIVÉE — BOUTON APPUYÉ !</div>
+    <h1>BRAVO NOAM ! 🏆</h1>
+    <p id="winTxt">Tu as fini !</p>
+    <p>Triple saut, backflip, flottement, pound... digne de ton plan papier !</p>
+    <button id="btnRestart" class="bigbtn">🔁 REJOUER</button>
+  </div>
+</div>
+
+<div id="lose" class="overlay hidden">
+  <div class="card">
+    <div class="badge">💀 GAME OVER</div>
+    <h1>OUCH !</h1>
+    <p id="loseTxt">Tu as perdu tous tes cœurs.</p>
+    <button id="btnRestart2" class="bigbtn">🔁 RECOMMENCER</button>
+  </div>
+</div>
+
+<!-- Ordre important : config → audio → textures → effects → world → player → enemies → main -->
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/world.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
